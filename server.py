@@ -44,7 +44,8 @@ def custom_rating_response(overview):
     # which eventually is used to predict its rating in the set of [0,10)
     prediction = float(model.predict([overview])[0][0])
     print("raw prediction:", prediction)
-    prediction = int(round(prediction, 1))
+    prediction = round(prediction, 1)
+    prediction = abs(prediction)
     
     return make_cors_response(str(prediction))
 
