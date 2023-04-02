@@ -46,6 +46,11 @@
         height: 48px;
         animation: spin 1s linear infinite;
       }
+      #char-count {
+        margin-top: 5px;
+        font-size: 0.8em;
+        color: #666;
+      }
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
@@ -54,27 +59,73 @@
   </head>
   <body>
     <h1>How good is your movie idea?</h1>
-    <form method="post">
-      <textarea id="freeform" name="freeform" rows="5" cols="8"></textarea>
+    <form id="movie-form" method="post">
+      <textarea id="freeform" name="freeform" rows="5" cols="8" minlength="200"></textarea>
+      <div id="char-count"></div>
       <input type="submit" value="Submit">
     </form>
-    <h1><span style="font-size: 3em;"><div id="loading-icon"></div></span></h1>
+    <h1><span style="font-size: 3em;"><div id="loading-icon" style="display: none"></div></span></h1>
     <script>
       // Set the variable to true to trigger the loading icon
-      let isLoading = True;
+      let isLoading = true;
+
+      const value = "value";
+      
       
       // Function to switch to the loading icon when the variable is true
-      function switchToLoadingIcon() {
+      function switchToLoadingIcon(value) {
+        document.getElementById('loading-icon').style.display = 'block';
         if (isLoading) {
           document.getElementById('loading-icon').innerHTML = '<div class="loader"></div>';
         } else {
-          document.getElementById('loading-icon').innerHTML = '4';
+          document.getElementById('loading-icon').innerHTML = value;
         }
       }
 
-      // Call the function to switch to the loading icon
-      switchToLoadingIcon();
+      const movieForm = document.querySelector('#movie-form');
+      const movieTextarea = document.querySelector('#freeform');
+
+
+      if (movieForm) {
+          movieForm.addEventListener('submit', function(event) {
+          event.preventDefault(); // prevent form from submitting normally
+          isLoading = true;
+          switchToLoadingIcon();
+          const movieIdea = movieTextarea.value;
+           
+          const url = 'http://75.40.154.54:2023/rate?overview=' + ' ' + movieIdea;
+          
+          var responseText = "5"
+          // Do something with the movie idea here
+          fetch(url)
+          .then(response => response.text())
+          .then(data => {
+            responseText = data;
+            isLoading = false;
+            switchToLoadingIcon(responseText);
+            console.log(data)
+          })
+          .catch(error => console.error(error));
+        });
+
+        
+      }
+      
+      const charCountElement = document.querySelector('#char-count');
+
+      if (movieTextarea && charCountElement) {
+      movieTextarea.addEventListener('input', function() {
+      const remainingChars = movieTextarea.minLength - movieTextarea.value.length;
+      charCountElement.textContent = `${remainingChars} characters remaining`;
+      charCountElement.style.display = remainingChars > 0 ? 'block' : 'none';
+  });
+}
+
+
+      
     </script>
   </body>
   
 </html>
+
+<!-- http://127.0.0.1:5000/rate?overview= -->
