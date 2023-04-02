@@ -1,4 +1,8 @@
-# Movie Idea thing
-HackPSU 2023
+# RateMyMovie
 
-[AI Training](https://colab.research.google.com/drive/1Xd5VvzxQiaH_ZCI_5y8MHLhtvdmt2VRG?usp=sharing)
+A fun way to rate your movie idea. We trained an artifical neural network judge your movie. Try to write within the topic, and see the rating (out of 10) the computer gives!
+
+[DevPost Link](https://devpost.com/software/ratemymovie)
+
+----
+#### HackPSU 2023
