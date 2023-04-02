@@ -3,6 +3,11 @@ import openai
 import json
 import random
 
+import tensorflow as tf
+import numpy as np
+
+model = tf.keras.models.load_model("movie_rater_model_0")
+
 with open("config.json") as f:
     config = json.load(f)
 
@@ -23,23 +28,23 @@ openai.organization = config["org"]
 openai.api_key = config["token"]
 # print(openai.Model.list())
 
-def ask_gpt(*args, **kwargs):
-    kwargs["model"] = "gpt-3.5-turbo"
-    resp = openai.ChatCompletion.create(*args, **kwargs)
-    return resp
-
 def make_cors_response(*args, **kwargs):
     resp = make_response(*args, **kwargs)
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
 
-@app.get("/rate")
-def rate():
-    overview = request.args.get("overview")
-    if not overview:
-        abort(400, "you forgot the overview idiot")
+def custom_rating_response(overview):
+    global model
+
+    prediction = float(model.predict([overview])[0][0])
+    print("raw prediction:", prediction)
+    prediction = int(round(prediction, 1))
     
-    resp = ask_gpt(
+    return make_cors_response(str(prediction))
+
+def chatgpt_rating_response(overview):
+    resp = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "user", "content": dan + "\n\n" + prompt.format(overview)}
         ]
@@ -62,5 +67,23 @@ def rate():
     print("giving random response")
     return make_cors_response(str(random.randint(2, 8)))
 
+@app.get("/rate")
+def rate():
+    overview = request.args.get("overview")
+    if not overview:
+        abort(400, "you forgot the overview idiot")
+    
+    raters = {
+        "chatgpt": chatgpt_rating_response,
+        "custom": custom_rating_response,
+    }
+
+    rater_selection = config["rater"]
+    if rater_selection in raters:
+        return raters[rater_selection](overview)
+    else:
+        return "unknown rater", 500
+    
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=2023, host="0.0.0.0")
