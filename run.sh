@@ -1,1 +1,1 @@
-docker run --rm -it
+nohup gunicorn server:app --bind="0.0.0.0:2023" &
