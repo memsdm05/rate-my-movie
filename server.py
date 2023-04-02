@@ -1,4 +1,4 @@
-from flask import Flask, request, abort
+from flask import Flask, request, abort, make_response
 import openai
 import json
 import random
@@ -23,9 +23,20 @@ openai.organization = config["org"]
 openai.api_key = config["token"]
 # print(openai.Model.list())
 
+@app.rate("/")
+def index():
+    return {
+        "rate": "/rate"
+    }
+
 def ask_gpt(*args, **kwargs):
     kwargs["model"] = "gpt-3.5-turbo"
     resp = openai.ChatCompletion.create(*args, **kwargs)
+    return resp
+
+def make_cors_response(*args, **kwargs):
+    resp = make_response(*args, **kwargs)
+    resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
 
 @app.get("/rate")
@@ -53,9 +64,9 @@ def rate():
             word = word.strip(char)
 
         if word.isnumeric() and int(word) <= 10:
-            return word
+            return make_cors_response(word)
     print("giving random response")
-    return str(random.randint(2, 8))
+    return make_cors_response(str(random.randint(2, 8)))
 
 if __name__ == "__main__":
     app.run()
