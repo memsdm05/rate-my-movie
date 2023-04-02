@@ -1,0 +1,5 @@
+{
+    "token": "<OPENAI API TOKEN>",
+    "org": "<OPENAI API ORG>",
+    "rater": "custom | chatgpt"
+}
