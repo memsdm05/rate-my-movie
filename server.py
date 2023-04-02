@@ -23,12 +23,6 @@ openai.organization = config["org"]
 openai.api_key = config["token"]
 # print(openai.Model.list())
 
-@app.rate("/")
-def index():
-    return {
-        "rate": "/rate"
-    }
-
 def ask_gpt(*args, **kwargs):
     kwargs["model"] = "gpt-3.5-turbo"
     resp = openai.ChatCompletion.create(*args, **kwargs)
@@ -60,7 +54,7 @@ def rate():
                 dflag = True
             continue
         
-        for char in list("!.?"):
+        for char in list("!.?,"):
             word = word.strip(char)
 
         if word.isnumeric() and int(word) <= 10:
@@ -69,4 +63,4 @@ def rate():
     return make_cors_response(str(random.randint(2, 8)))
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
